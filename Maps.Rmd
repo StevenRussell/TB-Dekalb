@@ -1,0 +1,45 @@
+---
+title: "Maps"
+output: 
+  html_document:
+    self_contained: no
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(leaflet)
+
+df <- data.frame(lat=runif(20, min=33.8, max=33.9),
+                 lng=runif(20, min=-84.1, max=-84.0))
+                 
+                 
+my_map <- df %>%
+    leaflet() %>%
+    addMarkers() %>%
+    addTiles()
+ 
+my_map
+
+```
+
+
+               
+```{r, echo=FALSE, warning=FALSE}
+
+library(devtools)
+library(rMaps)
+library(htmlwidgets)
+library(knitr)
+
+load("//cdc.gov/private/L330/ykf1/New folder/crime.Rda")
+
+#m <- ichoropleth(Crime ~ State, data = violent_crime, animate = "Year")
+#m
+# class(m)
+#lat=33.880636, lng=-84.287526,
+               #popup = "CDC"
+
+# https://www.youtube.com/watch?v=PTti7OMbURo
+```
+
+
+
