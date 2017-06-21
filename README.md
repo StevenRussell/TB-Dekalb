@@ -6,33 +6,20 @@ output:
     self_contained: no
 ---
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-library(leaflet)
-
-df <- data.frame(lat=runif(20, min=33.8, max=33.9),
-                 lng=runif(20, min=-84.1, max=-84.0))
-                 
-                 
-my_map <- df %>%
-    leaflet() %>%
-    addMarkers() %>%
-    addTiles()
- 
-my_map
-
-```
 
 
-               
-```{r, echo=FALSE, warning=FALSE}
 
-library(devtools)
-library(rMaps)
-library(htmlwidgets)
-library(knitr)
+
+
+
 
 
 ## Welcome to GitHub Pages
+
+---
+title: ""
+output: html_document
+---
 
 You can use the [editor on GitHub](https://github.com/StevenRussell/TB-Dekalb/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
