@@ -1,0 +1,149 @@
+---
+title: "Exploratory analysis of TB cases in Dekalb County"
+output: html_document
+---
+
+______________________________________________________________________________________
+### Summary
+
+```{r echo=FALSE}
+
+library(scales)
+
+dat <- read.csv("C:/TB-Dekalb/Copy of Jan 2006 - 2016 Data Table TB Clinic Ajibola.csv")
+
+dat$DOO <- as.Date(dat$DOO, format="%m/%d/%Y")
+min.date <- format(min(dat$DOO), format="%B %d, %Y")
+max.date <- format(max(dat$DOO), format="%B %d, %Y")
+
+dat$RACE <- ifelse(dat$RACE == "AMERICAN INDIAN/ALASKA NATIVE", "American Indian / Alaska Native",
+              ifelse(dat$RACE == "BLACK OR AFRICAN AMERICAN", "Black / African American",    
+                ifelse(dat$RACE == "WHITE", "White", 
+                  ifelse(dat$RACE == "ASIAN", "Asian", "Other / Unknown"))))
+
+#dat <- dat[dat$ZIPCODE < 400000,]
+dat$ZIPCODE <- ifelse(dat$ZIPCODE > 400000, floor(dat$ZIPCODE/10000), dat$ZIPCODE)
+
+```
+
+There were `r dim(dat)[1]` TB cases in Dekalb Country between `r min.date` and `r max.date`. Those cases spanned `r` districts and `r` zipcodes. 
+
+
+####Table of contents
+
+<style>
+.column-left{
+  float: left;
+  width: 35%;
+  text-align: left;
+}
+
+.column-right{
+  float: right;
+  width: 65%;
+  text-align: left;
+}
+</style>
+
+<div class="column-left">
+
+
+[Table 1. TB Cases by Race](#t1)          
+[Table 2. TB Cases by Country of Origin](#t2)    
+[Table 3. TB Cases by HIV status](#t3)    
+[Table 4. TB Cases by District](#t4)    
+[Table 5. TB Cases by Homeless Status](#t5)    
+[Table 6. TB Cases by Zip](#t6)    
+[Table 7. TB Cases by Correctional Facility Status](#t7)    
+[Table 8. TB Cases by Alcohol Use](#t8)    
+[Table 9. TB Cases by Occupation](#t9)    
+[Table 10. TB Cases by Long Term Facility](#t10)
+
+
+</div>
+<div class="column-right">
+<img src="C:/TB-Dekalb/GA pic 3.png" alt="Drawing" style="width: 580px;"/>  
+</div>
+
+
+______________________________________________________________________________________
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+```
+
+
+
+___________________________________________________________________________________________________
+<a name="t1">  </a>
+
+####Table 1. TB Cases by Race
+```{r kable, echo=FALSE}
+library(knitr)
+
+race.table <- kable(as.matrix(sort(table(dat$RACE), decreasing=T)), digits=2, col.names = c("Count"))
+race.table
+```
+
+
+<a name="t2">  </a>
+
+####Table 2. TB Cases by Country of Origin
+
+```{r, echo=FALSE}
+
+country.table <- kable(as.matrix(sort(table(dat$COUNTRY), decreasing=T)), digits=1, col.names = c("Count"))
+country.table
+```
+
+<a name="t3">  </a>
+
+####Table 3. TB Cases by HIV status
+
+```{r, echo=FALSE}
+
+HIV.table <- kable(as.matrix(sort(table(dat$HIV), decreasing=T)), digits=1, col.names = c("Count"))
+HIV.table
+```
+
+<a name="t4">  </a>
+
+####Table 4. TB Cases by District
+
+```{r, echo=FALSE}
+
+district.table <- kable(as.matrix(sort(table(dat$DISTRICT), decreasing=T)), digits=1, col.names = c("Count"))
+district.table
+```
+
+<a name="t5">  </a>
+
+####Table 5. TB Cases by Homeless Status
+
+```{r, echo=FALSE}
+
+homeless.table <- kable(as.matrix(sort(table(dat$HOMELESS), decreasing=T)), digits=1, col.names = c("Count"))
+homeless.table
+```
+
+<a name="t6">  </a>
+
+####Table 6. TB Cases by Zip
+
+```{r, echo=FALSE}
+
+ZIPCODE.table <- kable(as.matrix(sort(table(dat$ZIPCODE), decreasing=T)), digits=1, col.names = c("Count"))
+ZIPCODE.table
+```
+
+https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN
+https://stackoverflow.com/questions/31753897/2-column-section-in-r-markdown
+
+```{r echo=FALSE}
+#![](GA pic.png)
+
+```
