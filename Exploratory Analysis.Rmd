@@ -6,15 +6,19 @@ output: html_document
 ______________________________________________________________________________________
 ### Summary
 
+```{r echo=FALSE, warnings=FALSE, results='hide', message=FALSE}
+require(lubridate)
+require(ggplot2)
+library(scales)
+```
+
 ```{r echo=FALSE}
 
-library(scales)
+dat <- read.csv("C:/TB-Dekalb/Dekalb Cases (updated).csv")
 
-dat <- read.csv("C:/TB-Dekalb/Copy of Jan 2006 - 2016 Data Table TB Clinic Ajibola.csv")
-
-dat$DOO <- as.Date(dat$DOO, format="%m/%d/%Y")
-min.date <- format(min(dat$DOO), format="%B %d, %Y")
-max.date <- format(max(dat$DOO), format="%B %d, %Y")
+dat$DOPHN <- as.Date(dat$DOPHN, format="%m/%d/%Y")
+min.date <- format(min(dat$DOPHN), format="%B %d, %Y")
+max.date <- format(max(dat$DOPHN), format="%B %d, %Y")
 
 dat$RACE <- ifelse(dat$RACE == "AMERICAN INDIAN/ALASKA NATIVE", "American Indian / Alaska Native",
               ifelse(dat$RACE == "BLACK OR AFRICAN AMERICAN", "Black / African American",    
@@ -24,12 +28,23 @@ dat$RACE <- ifelse(dat$RACE == "AMERICAN INDIAN/ALASKA NATIVE", "American Indian
 #dat <- dat[dat$ZIPCODE < 400000,]
 dat$ZIPCODE <- ifelse(dat$ZIPCODE > 400000, floor(dat$ZIPCODE/10000), dat$ZIPCODE)
 
+perc.foreign.born <- percent(nrow(dat[!dat$Country.of.origin %in% c("UNITED STATES", "UNKNOWN"),]) / nrow(dat))
+perc.male <- percent(nrow(dat[dat$GENDER %in% c("MALE"),]) / nrow(dat))
+perc.asian <- percent(nrow(dat[dat$RACE %in% c("Asian"),]) / nrow(dat))
+
 ```
 
-There were `r dim(dat)[1]` TB cases in Dekalb Country between `r min.date` and `r max.date`. Those cases spanned `r` districts and `r` zipcodes. 
+There were `r dim(dat)[1]` TB cases in Dekalb Country between `r min.date` and `r max.date`. While cases were reported throughout the county, the highest concentration of cases appears to be clustered near the city of Clarkston. Among those with TB, `r perc.male` were male and `r perc.asian` were of Asian descent. In total `r perc.foreign.born` of TB patients were from non-US countries, most commonly Bhutan, Burma, Ethiopia, Nepal, and Thailand. Detailed results are presented below.
 
 
-####Table of contents
+<style>
+  body {
+    background-color:white;
+    color:black;
+  }
+
+</style>
+
 
 <style>
 .column-left{
@@ -47,22 +62,28 @@ There were `r dim(dat)[1]` TB cases in Dekalb Country between `r min.date` and `
 
 <div class="column-left">
 
-
-[Table 1. TB Cases by Race](#t1)          
-[Table 2. TB Cases by Country of Origin](#t2)    
-[Table 3. TB Cases by HIV status](#t3)    
-[Table 4. TB Cases by District](#t4)    
+####Tables
+[Table 1. TB Cases by Gender](#t1)   
+[Table 2. TB Cases by Race](#t2)   
+[Table 3. TB Cases by Ethnicity](#t3)   
+[Table 4. TB Cases by HIV status](#t4)     
 [Table 5. TB Cases by Homeless Status](#t5)    
-[Table 6. TB Cases by Zip](#t6)    
-[Table 7. TB Cases by Correctional Facility Status](#t7)    
-[Table 8. TB Cases by Alcohol Use](#t8)    
+[Table 6. TB Cases by Correctional Facility Status](#t6)   
+[Table 7. TB Cases by Alcohol Use](#t7)   
+[Table 8. TB Cases by Long Term Facility](#t8)    
 [Table 9. TB Cases by Occupation](#t9)    
-[Table 10. TB Cases by Long Term Facility](#t10)
+[Table 10. TB Cases by Country of Origin](#t10)    
+
+####Maps and Figures
+
+[Map 1. Dekalb county TB Cases by zipcode](#m1)  
+[Map 2. Distribution of TB Cases](#m2)  
+[Figure 1. Dekalb county TB Cases by year](#f1)  
 
 
 </div>
 <div class="column-right">
-<img src="C:/TB-Dekalb/GA pic 3.png" alt="Drawing" style="width: 580px;"/>  
+<img src="C:/TB-Dekalb/GA pic 3.png" alt="Drawing" style="width: 580px; height: 320px"/>  
 </div>
 
 
@@ -76,48 +97,94 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 ```
 
+___________________________________________________________________________________________________________
 
+
+<br>
+<br>
+<br>
+
+&nbsp;
 
 ___________________________________________________________________________________________________
 <a name="t1">  </a>
 
-####Table 1. TB Cases by Race
+####Table 1. TB Cases by Gender
 ```{r kable, echo=FALSE}
 library(knitr)
 
-race.table <- kable(as.matrix(sort(table(dat$RACE), decreasing=T)), digits=2, col.names = c("Count"))
-race.table
+GENDER.table <- kable(as.matrix(
+  cbind(sort(table(dat$GENDER), decreasing = T), percent(sort(as.vector(prop.table(table(dat$GENDER))), decreasing = T)))), digits=2, col.names = c("Count", "Percent"))
+GENDER.table
 ```
-
 
 <a name="t2">  </a>
 
-####Table 2. TB Cases by Country of Origin
-
+####Table 2. TB Cases by Race
 ```{r, echo=FALSE}
 
-country.table <- kable(as.matrix(sort(table(dat$COUNTRY), decreasing=T)), digits=1, col.names = c("Count"))
-country.table
+RACE.table <- kable(as.matrix(
+  cbind(sort(table(dat$RACE), decreasing = T), percent(sort(as.vector(prop.table(table(dat$RACE))), decreasing = T)))), digits=2, col.names = c("Count", "Percent"))
+RACE.table
 ```
 
 <a name="t3">  </a>
 
-####Table 3. TB Cases by HIV status
-
+####Table 3. TB Cases by Ethnicity
 ```{r, echo=FALSE}
+library(knitr)
 
-HIV.table <- kable(as.matrix(sort(table(dat$HIV), decreasing=T)), digits=1, col.names = c("Count"))
-HIV.table
+ETHNICITY.table <- kable(as.matrix(
+  cbind(sort(table(dat$ETHNICITY), decreasing = T), percent(sort(as.vector(prop.table(table(dat$ETHNICITY))), decreasing = T)))), digits=2, col.names = c("Count", "Percent"))
+ETHNICITY.table
 ```
+
+<a name="m1">  </a>
+
+####Map 1.
+
+
+<img src="C:/TB-Dekalb/Cases by Zip (export).png" alt="Drawing"/>  
 
 <a name="t4">  </a>
 
-####Table 4. TB Cases by District
+####Table 4. TB Cases by HIV status
 
 ```{r, echo=FALSE}
 
-district.table <- kable(as.matrix(sort(table(dat$DISTRICT), decreasing=T)), digits=1, col.names = c("Count"))
-district.table
+HIVSTATUS.table <- kable(as.matrix(
+  cbind(sort(table(dat$HIVSTATUS), decreasing = T), percent(sort(as.vector(prop.table(table(dat$HIVSTATUS))), decreasing = T)))), digits=2, col.names = c("Count", "Percent"))
+HIVSTATUS.table
+```
+
+<a name="f1">  </a>
+
+####Figure 1.
+
+```{r echo=FALSE}
+y <- year(dat$DOPHN)
+bar.dat <- data.frame(cbind(2006:2017, as.matrix(table(y))))
+names(bar.dat) <- c("Year", "TB Cases")
+bar.dat$Year <- as.factor(bar.dat$Year)
+
+ggplot(bar.dat, aes(x=Year, y=`TB Cases`)) + 
+      geom_hline(yintercept = c(100,200,300), color="grey93") + 
+  geom_bar(position=position_dodge(), stat="identity", colour='black') +
+  labs(title = "Dekalb County TB Cases by Year") +
+     theme(panel.background = element_rect(fill = 'white', colour = 'white'),
+        plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+        axis.title.x = element_text(size = 15, face = "bold", margin = unit(c(5, 0, 0, 0), "mm")), 
+        axis.title.y = element_text(size = 15, face = "bold", margin = unit(c(0, 5, 0, 0), "mm")),
+        axis.text.x = element_text(size = 12, face = "bold", vjust=3),
+        axis.text.y = element_text(size = 12, face = "bold"),
+        #        plot.margin = unit(c(1,1,1,1), "cm"),
+        legend.text = element_text(size=15),
+        legend.title = element_text(size=15),
+        axis.ticks=element_blank()) +
+  #axis.line = element_line(color="black")) + 
+  geom_hline(yintercept = 0, color="black", lwd=1) +
+  geom_segment(aes(x = 0, y = 0, xend =0, yend = 300), color="black", lwd=1.15)
+
 ```
 
 <a name="t5">  </a>
@@ -126,25 +193,106 @@ district.table
 
 ```{r, echo=FALSE}
 
-homeless.table <- kable(as.matrix(sort(table(dat$HOMELESS), decreasing=T)), digits=1, col.names = c("Count"))
-homeless.table
+HOMELESS.table <- kable(as.matrix(
+  cbind(sort(table(dat$HOMELESS), decreasing = T), percent(sort(as.vector(prop.table(table(dat$HOMELESS))), decreasing = T)))), digits=2, col.names = c("Count", "Percent"))
+HOMELESS.table
 ```
 
 <a name="t6">  </a>
 
-####Table 6. TB Cases by Zip
+####Table 6. TB Cases by Correctional Facility Status
 
 ```{r, echo=FALSE}
 
-ZIPCODE.table <- kable(as.matrix(sort(table(dat$ZIPCODE), decreasing=T)), digits=1, col.names = c("Count"))
-ZIPCODE.table
+CORFACILITY.table <- kable(as.matrix(
+  cbind(sort(table(dat$CORFACILITY), decreasing = T), percent(sort(as.vector(prop.table(table(dat$CORFACILITY))), decreasing = T)))), digits=2, col.names = c("Count", "Percent"))
+CORFACILITY.table
+
 ```
 
-https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN
-https://stackoverflow.com/questions/31753897/2-column-section-in-r-markdown
+<a name="t7">  </a>
+
+####Table 7. TB Cases by Alcohol Use
+
+```{r, echo=FALSE}
+
+ALCOHOLUSE.table <- kable(as.matrix(
+  cbind(sort(table(dat$ALCOHOLUSE), decreasing = T), percent(sort(as.vector(prop.table(table(dat$ALCOHOLUSE))), decreasing = T)))), digits=2, col.names = c("Count", "Percent"))
+ALCOHOLUSE.table
+
+```
+
+<a name="t8">  </a>
+
+####Table 8. TB Cases by Long Term Facility
+
+```{r, echo=FALSE}
+
+LONTERMFACILITY.table <- kable(as.matrix(
+  cbind(sort(table(dat$LONTERMFACILITY), decreasing = T), percent(sort(as.vector(prop.table(table(dat$LONTERMFACILITY))), decreasing = T)))), digits=2, col.names = c("Count", "Percent"))
+LONTERMFACILITY.table
+
+```
+
+<a name="t9">  </a>
+
+####Table 9. TB Cases by Occupation
+
+```{r, echo=FALSE}
+
+OCCUPATION1.table <- kable(as.matrix(
+  cbind(sort(table(dat$OCCUPATION1), decreasing = T), percent(sort(as.vector(prop.table(table(dat$OCCUPATION1))), decreasing = T)))), digits=2, col.names = c("Count", "Percent"))
+OCCUPATION1.table
+
+```
+
+<a name="m2">  </a>
+
+####Map 2.
+
+<center> <h3> <b> Distribution of TB Cases (with Randomization) </b> </h3> </center>
+
+
+<img src="C:/TB-Dekalb/Individual cases.png" alt="Drawing"/>  
+
 
 ```{r echo=FALSE}
 #![](GA pic.png)
+#https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN
+#https://stackoverflow.com/questions/31753897/2-column-section-in-r-markdown
+```
+
+<a name="t10">  </a>
+
+####Table 10. TB Cases by Country of Origin
+
+```{r, echo=FALSE}
+
+Country.of.origin.table <- kable(as.matrix(
+  cbind(sort(table(dat$Country.of.origin), decreasing = T), percent(sort(as.vector(prop.table(table(dat$Country.of.origin))), decreasing = T)))), digits=2, col.names = c("Count", "Percent"))
+Country.of.origin.table
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
